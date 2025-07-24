@@ -6,7 +6,7 @@ import { TelegramInputError, TTelegramCommandProps } from "./definitions";
 const MAX_SYMBOLS = 1024;
 
 export function telegramOnMessage(bot: TelegramBot): void {
-  bot.on("message", (message) => {
+  bot.on("message", (message, metadata) => {
     const { from, chat } = message;
 
     const chatId = chat.id;
@@ -14,6 +14,8 @@ export function telegramOnMessage(bot: TelegramBot): void {
     const messageParsed = message.text ? message.text.toLowerCase().replace(/ё/g, "е") : message.text;
 
     const commandProps = {
+      metadata,
+      chatId,
       message,
       fromPart,
       messageParsed,

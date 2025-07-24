@@ -1,13 +1,15 @@
 import { isEmpty, notEmpty, stringToNumberOrUndefined } from "@shreklabs/core";
+import TelegramBot from "node-telegram-bot-api";
+import { createMoodEntry, newMood } from "../../models/Mood/storage";
+import { TUser } from "../../models/User/definitions";
+import { createUserEntryIfNotPresent } from "../../models/User/storage";
 import { TelegramInputError, TTelegramCommandMethods } from "../definitions";
-import { createMoodEntry, newMood } from "../../models/mood/storage";
-import { createUserEntryIfNotPresent } from "../../models/users/storage";
 
 export const telegramMoodEntry = {
   test: ({ messageParsed }) => {
     if (!messageParsed) return false;
 
-    if (!/^\d{1,2}( .+)?$/.test(messageParsed)) {
+    if (!/^([1-9]|10)( .+)?$/.test(messageParsed)) {
       return false;
     }
 
@@ -28,9 +30,7 @@ export const telegramMoodEntry = {
 
   getReply: (props) => {
     const message = props.message.text;
-    const login = props.message.from?.username;
     if (!message) throw new Error("Empty message");
-    if (!login) throw new TelegramInputError("Нужен логин, чтобы записать данные...");
 
     const [scoreString, ...rest] = message.split(" ");
     const comment = rest && rest.length > 0 ? rest.join(" ") : undefined;
@@ -40,7 +40,8 @@ export const telegramMoodEntry = {
       throw new TelegramInputError("Нужно число от 1 до 10");
     }
 
-    createMoodEntry(createUserEntryIfNotPresent(login), newMood({ score, comment }));
+    const user = createUserEntryIfNotPresent(props.chatId, getUserPropsFromMessage(props.message));
+    createMoodEntry(user, newMood({ score, comment }));
 
     return `Понял, принял, обработал (${score}${comment ? ` с комментарием "${comment}"` : ""})`;
   },
@@ -52,4 +53,8 @@ function getValidMoodScoreOrUndefined(scoreString: string | undefined) {
   const score = stringToNumberOrUndefined(scoreString);
 
   return notEmpty(score) && score >= 1 && score <= 10 ? score : undefined;
+}
+
+function getUserPropsFromMessage(message: TelegramBot.Message) {
+  return { login: message.from?.username } satisfies Partial<TUser>;
 }

@@ -1,41 +1,41 @@
 import { produce } from "immer";
 import { databasePath } from "../../lib/FS/utils";
 import { createJsonStorage } from "../../lib/JsonStorage";
-import { getDateFromTimestamp } from "../date/utils";
-import { TUser } from "../users/definitions";
+import { getTruncatedTimestamp } from "../Date/utils";
+import { TUser } from "../User/definitions";
 import { TMoodEntry, TMoodEntryDate } from "./definitions";
 
-export type TMoodStorage = Record<TUser["login"], Record<TMoodEntryDate, TMoodEntry[] | undefined> | undefined>;
+export type TMoodStorage = Record<TUser["id"], Record<TMoodEntryDate, TMoodEntry[] | undefined> | undefined>;
 
 const $mood = createJsonStorage<TMoodStorage>({ filePath: databasePath("mood.json"), defaultValue: {} });
 
-export function getUserMood(login: TUser["login"]) {
-  return $mood.get()[login];
+export function getUserMood(id: TUser["id"]) {
+  return $mood.get()[id];
 }
 
-export function createMoodEntry(user: Pick<TUser, "login">, newMood: TMoodEntry) {
+export function createMoodEntry(user: Pick<TUser, "id">, newMood: TMoodEntry) {
   $mood.update((old) =>
     produce(old, (draft) => {
-      if (!draft[user.login]) {
-        draft[user.login] = {};
+      if (!draft[user.id]) {
+        draft[user.id] = {};
       }
 
-      const byLogin = draft[user.login]!;
+      const byId = draft[user.id]!;
 
-      const date = getDateFromTimestamp(newMood.created);
-      if (!byLogin[date]) {
-        byLogin[date] = [];
+      const truncated = getTruncatedTimestamp(newMood.created);
+      if (!byId[truncated]) {
+        byId[truncated] = [];
       }
 
-      const moods = byLogin[date]!;
+      const moods = byId[truncated]!;
 
       moods.push(newMood);
     })
   );
 }
 
-export function clearUserMoodsEntries(user: Pick<TUser, "login">) {
-  $mood.update((old) => ({ ...old, [user.login]: undefined }));
+export function clearUserMoodsEntries(user: Pick<TUser, "id">) {
+  $mood.update((old) => ({ ...old, [user.id]: undefined }));
 }
 
 export function newMood(mood: Omit<TMoodEntry, "created">): TMoodEntry {

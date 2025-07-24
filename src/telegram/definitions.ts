@@ -1,8 +1,10 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, { Chat } from "node-telegram-bot-api";
 
 export class TelegramInputError extends Error {}
 
 export type TTelegramCommandProps = {
+  metadata: TelegramBot.Metadata;
+  chatId: Chat["id"];
   message: TelegramBot.Message;
   fromPart: string;
   messageParsed: string | undefined;
