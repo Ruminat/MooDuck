@@ -1,4 +1,4 @@
-import { TTimestamp } from "../Dates/definitions";
+import { TTimestamp } from "../Date/definitions";
 
 export type TUser = {
   id: number;

@@ -1,6 +1,6 @@
 import { isEmpty, notEmpty, stringToNumberOrUndefined } from "@shreklabs/core";
 import TelegramBot from "node-telegram-bot-api";
-import { createMoodEntry, newMood } from "../../models/Moods/storage";
+import { createMoodEntry, newMood } from "../../models/Mood/storage";
 import { TUser } from "../../models/User/definitions";
 import { createUserEntryIfNotPresent } from "../../models/User/storage";
 import { TelegramInputError, TTelegramCommandMethods } from "../definitions";

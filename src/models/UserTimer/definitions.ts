@@ -1,4 +1,4 @@
-import { TTimestamp } from "../Dates/definitions";
+import { TTimestamp } from "../Date/definitions";
 import { TUser } from "../User/definitions";
 
 export type TMoodUserTimer = {

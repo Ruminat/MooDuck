@@ -1,7 +1,7 @@
 import { produce } from "immer";
 import { databasePath } from "../../lib/FS/utils";
 import { createJsonStorage } from "../../lib/JsonStorage";
-import { getTruncatedTimestamp } from "../Dates/utils";
+import { getTruncatedTimestamp } from "../Date/utils";
 import { TUser } from "../User/definitions";
 import { TMoodEntry, TMoodEntryDate } from "./definitions";
 
