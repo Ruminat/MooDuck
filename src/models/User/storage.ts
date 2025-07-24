@@ -1,7 +1,7 @@
 import { notEmpty } from "@shreklabs/core";
 import { databasePath } from "../../lib/FS/utils";
 import { createJsonStorage } from "../../lib/JsonStorage";
-import { clearUserMoodsEntries } from "../Mood/storage";
+import { clearUserMoodsEntries } from "../Moods/storage";
 import { TUser } from "./definitions";
 
 export type TUsersStorage = Record<TUser["id"], TUser | undefined>;
