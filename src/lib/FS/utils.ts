@@ -38,7 +38,6 @@ export function doesFileExist(filePath: string): boolean {
 }
 
 export function databasePath(path: string): string {
-  console.log("NIGGA", `${dataPath}/${path}`);
   return `${dataPath}/${path}`;
 }
 
