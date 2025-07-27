@@ -4,7 +4,10 @@ import { telegramMoodEntry } from "./commands/addMoodEntry";
 import { telegramHelpCommand } from "./commands/help";
 import { telegramStartCommand } from "./commands/start";
 import { TelegramInputError, TTelegramCommandProps, TTelegramGetReplyFn } from "./definitions";
+import { getErrorSticker } from "./stickers/presets";
 import { telegramSendReply } from "./utils";
+import { sentence } from "../models/SentenceBuilder";
+import { Interjection } from "../models/SentenceBuilder/interjections";
 
 const MAX_SYMBOLS = 1024;
 
@@ -26,6 +29,8 @@ const getReply: TTelegramGetReplyFn = (props) => {
 
 export function telegramOnMessage(bot: TelegramBot): void {
   bot.on("message", (message, metadata) => {
+    console.log("Hoba!", sentence`${2} plus ${2} is ${4}! ${[]}`);
+
     const { from, chat } = message;
 
     const chatId = chat.id;
@@ -46,6 +51,10 @@ export function telegramOnMessage(bot: TelegramBot): void {
         throw new TelegramInputError("Не знаю, что делать с таким сообщением...");
       }
 
+      if (message.text === "e") {
+        throw new Error("OSHIBKA");
+      }
+
       if (message.text.length >= MAX_SYMBOLS) {
         throw new TelegramInputError(`Не могу обрабатывать больше, чем ${MAX_SYMBOLS} символа`);
       }
@@ -59,11 +68,14 @@ export function telegramOnMessage(bot: TelegramBot): void {
       telegramSendReply(bot, commandProps, reply);
     } catch (error) {
       if (error instanceof TelegramInputError) {
-        bot.sendMessage(chatId, error.message, { parse_mode: "HTML" });
+        telegramSendReply(bot, commandProps, { text: error.message });
       } else {
-        console.log("We fucked up...", error);
+        console.log("Oopsie!...", error);
 
-        bot.sendMessage(chatId, `Что-то пошло не так...`, { parse_mode: "HTML" });
+        telegramSendReply(bot, commandProps, [
+          { sticker: getErrorSticker() },
+          { text: sentence`${Interjection.negative} Какая-то ошибка! Попробуй написать попозже...` },
+        ]);
       }
     }
   });

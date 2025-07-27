@@ -13,14 +13,18 @@ export function messageHasPrefix(prefixes: string[], message: string) {
   return prefixes.some((prefix) => message.startsWith(prefix));
 }
 
-export function telegramSendReply(
-  bot: TelegramBot,
-  props: TTelegramCommandProps,
-  reply: TTelegramReply
-): Promise<TelegramBot.Message> {
+export function telegramSendReply(bot: TelegramBot, props: TTelegramCommandProps, reply: TTelegramReply) {
+  if (Array.isArray(reply)) {
+    for (const singleReply of reply) {
+      telegramSendReply(bot, props, singleReply);
+    }
+
+    return;
+  }
+
   if ("text" in reply) {
-    return bot.sendMessage(props.chatId, reply.text, { parse_mode: "HTML" });
+    bot.sendMessage(props.chatId, reply.text, { parse_mode: "HTML" });
   } else {
-    return bot.sendSticker(props.chatId, reply.sticker);
+    bot.sendSticker(props.chatId, reply.sticker);
   }
 }

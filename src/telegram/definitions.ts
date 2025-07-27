@@ -10,7 +10,8 @@ export type TTelegramCommandProps = {
   messageParsed: string | undefined;
 };
 
-export type TTelegramReply = { text: string } | { sticker: string };
+export type TTelegramReplySingle = { text: string } | { sticker: string };
+export type TTelegramReply = TTelegramReplySingle | TTelegramReplySingle[];
 export type TTelegramGetReplyFn = (props: TTelegramCommandProps) => TTelegramReply;
 
 export type TTelegramCommandMethods = {
