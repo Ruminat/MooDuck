@@ -43,7 +43,7 @@ export const telegramMoodEntry = {
     const user = createUserEntryIfNotPresent(props.chatId, getUserPropsFromMessage(props.message));
     createMoodEntry(user, newMood({ score, comment }));
 
-    return `Понял, принял, обработал (${score}${comment ? ` с комментарием "${comment}"` : ""})`;
+    return { text: `Понял, принял, обработал (${score}${comment ? ` с комментарием "${comment}"` : ""})` };
   },
 } satisfies TTelegramCommandMethods;
 

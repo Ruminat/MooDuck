@@ -10,7 +10,12 @@ export type TTelegramCommandProps = {
   messageParsed: string | undefined;
 };
 
+export type TTelegramReply = { text: string } | { sticker: string };
+export type TTelegramGetReplyFn = (props: TTelegramCommandProps) => TTelegramReply;
+
 export type TTelegramCommandMethods = {
   test: (props: TTelegramCommandProps) => boolean;
-  getReply: (props: TTelegramCommandProps) => string;
+  getReply: TTelegramGetReplyFn;
 };
+
+export type TTelegramCommand = "/start" | "/help";
