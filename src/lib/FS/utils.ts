@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import { config } from "dotenv";
 import { readFile as fsReadFile, writeFile } from "fs/promises";
-import fs = require("fs");
+import fs from "fs";
 
 config();
 

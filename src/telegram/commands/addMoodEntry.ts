@@ -1,9 +1,12 @@
 import { isEmpty, notEmpty, stringToNumberOrUndefined } from "@shreklabs/core";
 import TelegramBot from "node-telegram-bot-api";
+import { callRandomParameter } from "../../common/random/utils";
 import { createMoodEntry, newMood } from "../../models/Mood/storage";
+import { sentence } from "../../models/SentenceBuilder";
+import { getInterjectionsByMood } from "../../models/SentenceBuilder/interjections";
 import { TUser } from "../../models/User/definitions";
 import { createUserEntryIfNotPresent } from "../../models/User/storage";
-import { TelegramInputError, TTelegramCommandMethods } from "../definitions";
+import { TelegramInputError, TTelegramCommandMethods, TTelegramReply } from "../definitions";
 
 export const telegramMoodEntry = {
   test: ({ messageParsed }) => {
@@ -43,7 +46,18 @@ export const telegramMoodEntry = {
     const user = createUserEntryIfNotPresent(props.chatId, getUserPropsFromMessage(props.message));
     createMoodEntry(user, newMood({ score, comment }));
 
-    return { text: `Понял, принял, обработал (${score}${comment ? ` с комментарием "${comment}"` : ""})` };
+    const interjection = getInterjectionsByMood(score);
+    const boring = `(${score}${comment ? ` + "${comment}"` : ""})`;
+    const result = callRandomParameter(
+      (): TTelegramReply => {
+        return { text: sentence`${interjection} ${boring}` };
+      },
+      (): TTelegramReply => {
+        return { text: `Понял, принял, обработал (${score}${comment ? ` + "${comment}"` : ""})` };
+      }
+    );
+
+    return result as TTelegramReply;
   },
 } satisfies TTelegramCommandMethods;
 

@@ -1,13 +1,15 @@
 import TelegramBot from "node-telegram-bot-api";
 import { logInfo } from "../common/logging";
+import { withProbability } from "../common/random/utils";
+import { sentence } from "../models/SentenceBuilder";
+import { Interjection } from "../models/SentenceBuilder/interjections";
 import { telegramMoodEntry } from "./commands/addMoodEntry";
+import { telegramErrorCommand } from "./commands/error";
 import { telegramHelpCommand } from "./commands/help";
 import { telegramStartCommand } from "./commands/start";
 import { TelegramInputError, TTelegramCommandProps, TTelegramGetReplyFn } from "./definitions";
-import { getErrorSticker } from "./stickers/presets";
+import { getErrorSticker, getUnknownSticker } from "./stickers/presets";
 import { telegramSendReply } from "./utils";
-import { sentence } from "../models/SentenceBuilder";
-import { Interjection } from "../models/SentenceBuilder/interjections";
 
 const MAX_SYMBOLS = 1024;
 
@@ -24,13 +26,18 @@ const getReply: TTelegramGetReplyFn = (props) => {
     return telegramMoodEntry.getReply(props);
   }
 
-  return { text: `Не пон... Напиши /help, чтобы почитать, как мной пользоваться` };
+  if (telegramErrorCommand.test(props)) {
+    return telegramErrorCommand.getReply();
+  }
+
+  const text = sentence`Не пон... ${Interjection.neutral} Напиши /help, чтобы почитать, как мной пользоваться`;
+  const sticker = withProbability(0.3, () => getUnknownSticker());
+
+  return sticker ? [{ sticker }, { text }] : { text };
 };
 
 export function telegramOnMessage(bot: TelegramBot): void {
   bot.on("message", (message, metadata) => {
-    console.log("Hoba!", sentence`${2} plus ${2} is ${4}! ${[]}`);
-
     const { from, chat } = message;
 
     const chatId = chat.id;
@@ -49,10 +56,6 @@ export function telegramOnMessage(bot: TelegramBot): void {
       if (!message.text) {
         console.log("\nReceived message without text, ignoring...", message.sticker?.file_id, "\n");
         throw new TelegramInputError("Не знаю, что делать с таким сообщением...");
-      }
-
-      if (message.text === "e") {
-        throw new Error("OSHIBKA");
       }
 
       if (message.text.length >= MAX_SYMBOLS) {
@@ -80,5 +83,5 @@ export function telegramOnMessage(bot: TelegramBot): void {
     }
   });
 
-  console.log(`\n  - MooDuck is listening...\n`);
+  console.log(`\n << MooDuck is listening >> \n`);
 }

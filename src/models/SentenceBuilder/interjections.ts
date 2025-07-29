@@ -56,3 +56,15 @@ export const Interjection = {
     ["10", "Нереально!"],
   ]),
 };
+
+export function getInterjectionsByMood(mood: number) {
+  if (mood <= 4) {
+    return Interjection.negative;
+  } else if (mood <= 6) {
+    return Interjection.neutral;
+  } else if (mood <= 8) {
+    return Interjection.positive;
+  } else {
+    return Interjection.amazing;
+  }
+}

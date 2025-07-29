@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { createDataDirIfMissing } from "./lib/FS/utils";
 import { telegramOnMessage } from "./telegram/onMessage";
-import TelegramBot = require("node-telegram-bot-api");
+import TelegramBot from "node-telegram-bot-api";
 
 config();
 
@@ -21,7 +21,7 @@ telegramOnMessage(TELEGRAM_BOT);
 // Check the node version is OK
 (function () {
   const abortController = new AbortController();
-  if (abortController) {
-    console.log("  - AbortController is good");
+  if (!abortController) {
+    console.log("\n\n NO ABORT CONTROLLER — USE NEWER NODE JS VERSION \n\n");
   }
 })();

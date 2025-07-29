@@ -21,9 +21,15 @@
     "allowJs": true,
     "checkJs": false,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
 
     "sourceMap": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   },
   "include": ["src/**/*.ts", "src/telegram/commands/getAllParsersActivitiesReply"]
 }

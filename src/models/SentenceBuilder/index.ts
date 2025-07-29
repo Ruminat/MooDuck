@@ -2,17 +2,26 @@ import { randomFrom } from "@shreklabs/core";
 import { isInterjectionsPairs } from "./utils";
 
 export function sentence(strings: TemplateStringsArray, ...values: unknown[]): string {
-  console.log("Sussy baka", { strings, values });
+  let result = "";
 
-  return strings
-    .reduce((result, str, i) => {
-      const value = values[i - 1];
+  for (let i = 0; i < strings.length; i++) {
+    const staticString = strings[i];
+    const value = values[i];
 
-      if (isInterjectionsPairs(value)) {
-        return result + randomFrom(value.items);
-      } else {
-        return result + str;
-      }
-    })
-    .trim();
+    if (staticString) {
+      result += staticString;
+    }
+
+    // There is no value for the last string, so we can skip it
+    if (i === strings.length - 1) break;
+
+    if (isInterjectionsPairs(value)) {
+      const [, interjection] = randomFrom(value.items);
+      result += interjection;
+    } else {
+      result += String(value);
+    }
+  }
+
+  return result.trim();
 }

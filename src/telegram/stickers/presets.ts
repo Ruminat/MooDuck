@@ -16,3 +16,14 @@ export function getErrorSticker() {
     Sticker.YellowBoi.iDunno,
   ]);
 }
+
+export function getUnknownSticker() {
+  return randomFrom([
+    Sticker.YellowBoi.dead,
+    Sticker.YellowBoi.ohNo,
+    Sticker.YellowBoi.oops,
+    Sticker.YellowBoi.heheIDontKnow,
+    Sticker.YellowBoi.sad,
+    Sticker.YellowBoi.iDunno,
+  ]);
+}
