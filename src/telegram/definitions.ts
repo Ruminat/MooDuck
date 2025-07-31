@@ -12,7 +12,7 @@ export type TTelegramCommandProps = {
 
 export type TTelegramReplySingle = { text: string } | { sticker: string };
 export type TTelegramReply = TTelegramReplySingle | TTelegramReplySingle[];
-export type TTelegramGetReplyFn = (props: TTelegramCommandProps) => TTelegramReply;
+export type TTelegramGetReplyFn = (props: TTelegramCommandProps) => TTelegramReply | Promise<TTelegramReply>;
 
 export type TTelegramCommandMethods = {
   test: (props: TTelegramCommandProps) => boolean;

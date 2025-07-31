@@ -41,7 +41,11 @@ export function databasePath(path: string): string {
   return `${dataPath}/${path}`;
 }
 
-export async function createDataDirIfMissing() {
-  if (fs.existsSync(dataPath)) return;
-  fs.mkdirSync(dataPath);
+export function createDataDirIfMissing() {
+  createDirIfMissing(dataPath);
+}
+
+export function createDirIfMissing(path: string) {
+  if (fs.existsSync(path)) return;
+  fs.mkdirSync(path);
 }

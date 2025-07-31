@@ -12,6 +12,7 @@ import { getErrorSticker, getUnknownSticker } from "./stickers/presets";
 import { telegramSendReply } from "./utils";
 
 const MAX_SYMBOLS = 1024;
+const MAX_SYMBOLS_COUNT = `${MAX_SYMBOLS} символа`;
 
 const getReply: TTelegramGetReplyFn = (props) => {
   if (telegramStartCommand.test(props)) {
@@ -37,7 +38,7 @@ const getReply: TTelegramGetReplyFn = (props) => {
 };
 
 export function telegramOnMessage(bot: TelegramBot): void {
-  bot.on("message", (message, metadata) => {
+  bot.on("message", async (message, metadata) => {
     const { from, chat } = message;
 
     const chatId = chat.id;
@@ -59,12 +60,14 @@ export function telegramOnMessage(bot: TelegramBot): void {
       }
 
       if (message.text.length >= MAX_SYMBOLS) {
-        throw new TelegramInputError(`Не могу обрабатывать больше, чем ${MAX_SYMBOLS} символа`);
+        throw new TelegramInputError(`Не могу обрабатывать больше, чем ${MAX_SYMBOLS_COUNT}`);
       }
 
       logInfo(`${fromPart} ${message.text}`);
 
-      const reply = getReply(commandProps);
+      bot.sendChatAction(chatId, "typing");
+
+      const reply = await getReply(commandProps);
 
       logInfo(`@MooDuck: ${reply}\n`);
 

@@ -1,7 +1,9 @@
 import { isEmpty, notEmpty, stringToNumberOrUndefined } from "@shreklabs/core";
 import TelegramBot from "node-telegram-bot-api";
 import { callRandomParameter } from "../../common/random/utils";
+import { getAIReply } from "../../models/AI/sagas";
 import { createMoodEntry, newMood } from "../../models/Mood/storage";
+import { getPromptByMood } from "../../models/Mood/utils";
 import { sentence } from "../../models/SentenceBuilder";
 import { getInterjectionsByMood } from "../../models/SentenceBuilder/interjections";
 import { TUser } from "../../models/User/definitions";
@@ -31,7 +33,7 @@ export const telegramMoodEntry = {
     }
   },
 
-  getReply: (props) => {
+  getReply: async (props) => {
     const message = props.message.text;
     if (!message) throw new Error("Empty message");
 
@@ -48,14 +50,25 @@ export const telegramMoodEntry = {
 
     const interjection = getInterjectionsByMood(score);
     const boring = `(${score}${comment ? ` + "${comment}"` : ""})`;
-    const result = callRandomParameter(
+    const defaultResult = callRandomParameter(
       (): TTelegramReply => {
         return { text: sentence`${interjection} ${boring}` };
       },
       (): TTelegramReply => {
         return { text: `Понял, принял, обработал (${score}${comment ? ` + "${comment}"` : ""})` };
       }
-    );
+    ) as TTelegramReply;
+
+    let result = defaultResult;
+    try {
+      const reply = await getAIReply({ model: "yaGPT", score, prompt: getPromptByMood({ score }) });
+
+      if (!reply) throw new Error("Didn't get any reply");
+
+      result = { text: reply };
+    } catch (error) {
+      console.log("Oops...", error);
+    }
 
     return result as TTelegramReply;
   },
