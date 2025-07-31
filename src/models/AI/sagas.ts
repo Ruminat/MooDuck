@@ -1,7 +1,7 @@
 import { notEmpty } from "@shreklabs/core";
 import axios from "axios";
 import https from "https";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 import { TModel, TokenAI } from "./definitions";
 import { addAIReplyEntry } from "./storage";
 
@@ -9,7 +9,7 @@ import { addAIReplyEntry } from "./storage";
 // const httpsAgent = new https.Agent({ ca: cert });
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
-const deepseek = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: TokenAI.deepseek });
+// const deepseek = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: TokenAI.deepseek });
 
 export async function getAIReply({ model, prompt, score }: { model: TModel; prompt: string; score?: number }) {
   const token = TokenAI[model];
@@ -19,18 +19,19 @@ export async function getAIReply({ model, prompt, score }: { model: TModel; prom
   }
 
   if (model === "deepseek") {
-    const completion = await deepseek.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "deepseek-chat",
-    });
+    throw new Error("Not supported at the moment");
+    // const completion = await deepseek.chat.completions.create({
+    //   messages: [{ role: "user", content: prompt }],
+    //   model: "deepseek-chat",
+    // });
 
-    const reply = completion.choices[0].message.content;
+    // const reply = completion.choices[0].message.content;
 
-    if (reply && notEmpty(score)) {
-      addAIReplyEntry({ model: "deepseek", score, reply });
-    }
+    // if (reply && notEmpty(score)) {
+    //   addAIReplyEntry({ model: "deepseek", score, reply });
+    // }
 
-    return reply;
+    // return reply;
   } else if (model === "yaGPT") {
     const url = process.env.YA_GPT_API_URL;
 
