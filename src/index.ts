@@ -3,6 +3,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { createDataDirIfMissing } from "./lib/FS/utils";
 import { checkNodeFeatures } from "./lib/NodeJS/utils";
 import { telegramOnMessage } from "./telegram/onMessage";
+import { telegramOnCallbackQuery } from "./telegram/onCallbackQuery";
 
 checkNodeFeatures();
 
@@ -20,3 +21,4 @@ const TELEGRAM_BOT = new TelegramBot(TOKEN, { polling: true });
 
 // Start the bot
 telegramOnMessage(TELEGRAM_BOT);
+telegramOnCallbackQuery(TELEGRAM_BOT);

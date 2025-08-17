@@ -8,7 +8,8 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/mooduck.js",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint-fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
+    "lint-fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "mood",

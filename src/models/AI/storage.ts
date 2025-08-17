@@ -30,13 +30,8 @@ export function addAIReplyEntry({ model, score, reply }: { model: TModel; score:
         draft.replies[score] = {};
       }
 
-      const byScore = draft.replies[score];
-
-      if (!byScore[reply]) {
-        byScore[reply] = 1;
-      } else {
-        byScore[reply] += 1;
-      }
+      const byScore = draft.replies[score]!;
+      byScore[reply] = (byScore[reply] ?? 0) + 1;
     })
   );
 }

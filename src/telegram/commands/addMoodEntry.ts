@@ -35,6 +35,7 @@ export const telegramMoodEntry = {
 
   getReply: async (props) => {
     const message = props.message.text;
+
     if (!message) throw new Error("Empty message");
 
     const [scoreString, ...rest] = message.split(" ");
@@ -55,13 +56,13 @@ export const telegramMoodEntry = {
         return { text: sentence`${interjection} ${boring}` };
       },
       (): TTelegramReply => {
-        return { text: `Понял, принял, обработал (${score}${comment ? ` + "${comment}"` : ""})` };
+        return { text: `Понял, принял, обработал ${boring}` };
       }
     ) as TTelegramReply;
 
     let result = defaultResult;
     try {
-      const reply = await getAIReply({ model: "yaGPT", score, prompt: getPromptByMood({ score }) });
+      const reply = await getAIReply({ model: "yaGPT", score, prompt: getPromptByMood({ score, comment }) });
 
       if (!reply) throw new Error("Didn't get any reply");
 

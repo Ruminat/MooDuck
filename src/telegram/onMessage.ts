@@ -6,7 +6,9 @@ import { Interjection } from "../models/SentenceBuilder/interjections";
 import { telegramMoodEntry } from "./commands/addMoodEntry";
 import { telegramErrorCommand } from "./commands/error";
 import { telegramHelpCommand } from "./commands/help";
+import { telegramSettingsCommand } from "./commands/settings";
 import { telegramStartCommand } from "./commands/start";
+import { telegramStatCommand } from "./commands/stat";
 import { TelegramInputError, TTelegramCommandProps, TTelegramGetReplyFn } from "./definitions";
 import { getErrorSticker, getUnknownSticker } from "./stickers/presets";
 import { telegramSendReply } from "./utils";
@@ -25,6 +27,14 @@ const getReply: TTelegramGetReplyFn = (props) => {
 
   if (telegramMoodEntry.test(props)) {
     return telegramMoodEntry.getReply(props);
+  }
+
+  if (telegramSettingsCommand.test(props)) {
+    return telegramSettingsCommand.getReply();
+  }
+
+  if (telegramStatCommand.test(props)) {
+    return telegramStatCommand.getReply(props);
   }
 
   if (telegramErrorCommand.test(props)) {

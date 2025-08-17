@@ -10,7 +10,9 @@ export type TTelegramCommandProps = {
   messageParsed: string | undefined;
 };
 
-export type TTelegramReplySingle = { text: string } | { sticker: string };
+export type TTelegramReplySingle =
+  | { text: string; options?: TelegramBot.SendMessageOptions }
+  | { sticker: string; options?: TelegramBot.SendStickerOptions };
 export type TTelegramReply = TTelegramReplySingle | TTelegramReplySingle[];
 export type TTelegramGetReplyFn = (props: TTelegramCommandProps) => TTelegramReply | Promise<TTelegramReply>;
 
@@ -19,4 +21,4 @@ export type TTelegramCommandMethods = {
   getReply: TTelegramGetReplyFn;
 };
 
-export type TTelegramCommand = "/start" | "/help";
+export type TTelegramCommand = "/start" | "/stat" | "/settings" | "/help";
