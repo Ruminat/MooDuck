@@ -3,7 +3,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { callRandomParameter } from "../../common/random/utils";
 import { getAIReply } from "../../models/AI/sagas";
 import { createMoodEntry, newMood } from "../../models/Mood/storage";
-import { getPromptByMood } from "../../models/Mood/utils";
+import { getPromptByMood } from "../../models/Mood/prompts/getPromptByMood";
 import { sentence } from "../../models/SentenceBuilder";
 import { getInterjectionsByMood } from "../../models/SentenceBuilder/interjections";
 import { TUser } from "../../models/User/definitions";
@@ -62,7 +62,7 @@ export const telegramMoodEntry = {
 
     let result = defaultResult;
     try {
-      const reply = await getAIReply({ model: "yaGPT", score, prompt: getPromptByMood({ score, comment }) });
+      const reply = await getAIReply({ model: "yaGPT", score, prompt: getPromptByMood({ user, score, comment }) });
 
       if (!reply) throw new Error("Didn't get any reply");
 

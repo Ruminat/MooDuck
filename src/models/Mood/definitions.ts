@@ -1,4 +1,6 @@
 import { TTimestamp } from "../Date/definitions";
+import { TUser } from "../User/definitions";
+import { getMoodStats } from "./sagas/getMoodStats";
 
 // type TDigitString = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8'
 export type TMoodEntryDate = string;
@@ -22,3 +24,10 @@ export type TMoodReactionMode = { type: "toxic" } | { type: "normal" } | { type:
  * @example If the average mood is 5.5, then mood interest of mood 1 is abs(1 - 5.5) = 4.5
  */
 export type TMoodInterest = number;
+
+export type TMoodStatsParams = {
+  user: TUser;
+  topEntries?: number;
+};
+
+export type TMoodStats = ReturnType<typeof getMoodStats>;

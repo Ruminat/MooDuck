@@ -1,92 +1,44 @@
-import { notEmpty } from "@shreklabs/core";
-import { TMoodEntry, TMoodInterest, TMoodScore } from "../../models/Mood/definitions";
-import { getUserMood } from "../../models/Mood/storage";
-import { getMoodInterest } from "../../models/Mood/utils";
+import { getRandomInt } from "@shreklabs/core";
+import { getAIReply } from "../../models/AI/sagas";
+import { MoodPromptCommon } from "../../models/Mood/prompts/definitions";
+import { getMoodStatReply } from "../../models/Mood/sagas/getMoodStatReply";
 import { TTelegramCommandMethods } from "../definitions";
-import { b, code, getOrCreateTelegramUser } from "../utils";
-import { padStart, round, take } from "lodash";
+import { getOrCreateTelegramUser } from "../utils";
 
 export const telegramStatCommand = {
   test: ({ messageParsed }) => {
     return messageParsed === "/stat";
   },
 
-  getReply: (props) => {
-    const user = getOrCreateTelegramUser(props);
-    const mood = getUserMood(user.id);
+  getReply: async (props) => {
+    const stats = getMoodStatReply({ user: getOrCreateTelegramUser(props) });
 
-    if (!mood) {
-      return noEntriesReply();
+    if (!stats) {
+      return {
+        text: "Пока нет никаких записей... Не могу выдать никакой статистики без них. Напиши /help для того, чтобы посмотреть, как мной пользоваться",
+      };
     }
 
-    const allMoodEntries = Object.values(mood).filter(notEmpty).flat();
+    const prompt = `${MoodPromptCommon.promptRole}
 
-    if (allMoodEntries.length === 0) {
-      return noEntriesReply();
+Нужно прокомментировать статистику пользователя.
+Будь краток и оригинален. Нужны смешные и весёлые комментарии. Без банальщины.
+Предоставь только ответ пользователю и больше ничего.
+${MoodPromptCommon.banPhrases}
+${MoodPromptCommon.wordsLimit(getRandomInt(300, 500))}
+
+${stats}`;
+
+    try {
+      const reply = await getAIReply({ model: "yaGPT", prompt });
+
+      if (!reply) throw new Error("Didn't get any reply");
+
+      return { text: `${stats}\n\n${reply}` };
+    } catch (error) {
+      console.log("Oops...", error);
     }
 
-    const scores: Record<TMoodScore, number | undefined> = {};
-    let scoresSum = 0;
-    const interestingEntries: (TMoodEntry & { interest: TMoodInterest })[] = [];
-
-    for (const entry of allMoodEntries) {
-      const { score, comment } = entry;
-
-      scoresSum += score;
-
-      scores[score] = (scores[score] ?? 0) + 1;
-
-      const interest = getMoodInterest({ avgMood: 5.5, mood: score });
-
-      if (comment && interest >= 1.5) {
-        interestingEntries.push({ ...entry, interest });
-      }
-    }
-
-    const avgMood = scoresSum / allMoodEntries.length;
-
-    const scoresCount = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-      .map((score) => `— ${moodMarkup(score)}: ${scores[score] ?? 0}`)
-      .join("\n");
-
-    const topEntries = take(
-      interestingEntries.sort((entryA, entryB) => {
-        const byInterest = entryB.interest - entryA.interest;
-
-        return byInterest !== 0 ? byInterest : entryB.created - entryA.created;
-      }),
-      10
-    ).sort((entryA, entryB) => {
-      const byScore = entryB.score - entryA.score;
-
-      return byScore !== 0 ? byScore : entryB.created - entryA.created;
-    });
-
-    const topEntriesMarkup =
-      topEntries.length > 0
-        ? `\n\n${b("Топ интересных комментариев")}\n\n${topEntries
-            .map((entry) => `— ${moodMarkup(entry.score)}: ${entry.comment}`)
-            .join("\n")}`
-        : "";
-
-    const text = `${b("Вот твоя статистика")}
-
-— Среднее настроение: ${round(avgMood, 2)}
-
-${b("Оценки")}
-
-${scoresCount}${topEntriesMarkup}`;
-
-    return { text };
+    return { text: stats };
   },
 } satisfies TTelegramCommandMethods;
-
-function noEntriesReply() {
-  return {
-    text: "Пока нет никаких записей... Не могу выдать никакой статистики без них. Напиши /help для того, чтобы посмотреть, как мной пользоваться",
-  };
-}
-
-function moodMarkup(score: TMoodScore): string {
-  return code(`${padStart(String(score), 2, " ")}/10`);
-}
