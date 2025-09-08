@@ -1,19 +1,10 @@
 import { getRandomInt, randomFrom } from "@shreklabs/core";
+import { pickRandomPromptMode, PROMPT_MODE } from "../../Prompt/mode";
 import { sentence } from "../../SentenceBuilder";
 import { getInterjectionsByMood } from "../../SentenceBuilder/interjections";
 import { TUser } from "../../User/definitions";
 import { TMoodScore } from "../definitions";
 import { getLastMoodCommentsForPrompt } from "../sagas/getLastMoodCommentsForPrompt";
-
-const MODE = {
-  friendly: "Будь добрым и поддерживающим, как лучший друг.",
-  toxic:
-    "Будь оригинальным, возможно, даже немного токсичным и чернушным (нужна остринка), но при этом забавным (чтобы поднять настроение).",
-  absurd: "Ответь чем-то совершенно абсурдным и неожиданным, возможно даже бессмысленным, но желательно забавным.",
-  philosophical: "Начни рассуждать о смысле жизни, но кратко и с юмором.",
-};
-
-const modes = Object.values(MODE);
 
 type TProps = { user: TUser; score: TMoodScore; comment?: string };
 
@@ -53,11 +44,11 @@ function getComment(props: TProps) {
 
 function getMode(props: TProps) {
   if (props.score >= 4) {
-    return randomFrom(modes);
+    return pickRandomPromptMode();
   } else if (props.score >= 2) {
-    return randomFrom([MODE.friendly, MODE.philosophical]);
+    return randomFrom([PROMPT_MODE.friendly, PROMPT_MODE.philosophical]);
   } else {
-    return MODE.friendly;
+    return PROMPT_MODE.friendly;
   }
 }
 

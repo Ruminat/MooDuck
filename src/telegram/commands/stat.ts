@@ -2,6 +2,7 @@ import { getRandomInt } from "@shreklabs/core";
 import { getAIReply } from "../../models/AI/sagas";
 import { MoodPromptCommon } from "../../models/Mood/prompts/definitions";
 import { getMoodStatReply } from "../../models/Mood/sagas/getMoodStatReply";
+import { pickRandomPromptMode } from "../../models/Prompt/mode";
 import { TTelegramCommandMethods } from "../definitions";
 import { getOrCreateTelegramUser } from "../utils";
 
@@ -22,7 +23,7 @@ export const telegramStatCommand = {
     const prompt = `${MoodPromptCommon.promptRole}
 
 Нужно прокомментировать статистику пользователя.
-Будь краток и оригинален. Нужны смешные и весёлые комментарии. Без банальщины.
+${pickRandomPromptMode()}
 Предоставь только ответ пользователю и больше ничего.
 ${MoodPromptCommon.banPhrases}
 ${MoodPromptCommon.wordsLimit(getRandomInt(300, 500))}
