@@ -1,5 +1,5 @@
 import { notEmpty } from "@shreklabs/core";
-import { take } from "lodash";
+import { take, takeRight } from "lodash";
 import { TMoodEntry, TMoodInterest, TMoodScore, TMoodStatsParams } from "../definitions";
 import { getUserMood } from "../storage";
 import { getMoodInterest } from "../utils";
@@ -18,16 +18,22 @@ export function getMoodStats(params: TMoodStatsParams) {
   }
 
   const topEntriesCount = params.topEntries ?? 10;
+  const lastEntriesCount = params.lastCommentedEntries ?? 5;
   const scores: Record<TMoodScore, number | undefined> = {};
 
   let scoresSum = 0;
   let std = 0;
+  const withComments: TMoodEntry[] = [];
   const interestingEntries: (TMoodEntry & { interest: TMoodInterest })[] = [];
 
   for (const { mood } of traverseMoods(allMoodEntries)) {
     scoresSum += mood.score;
 
     scores[mood.score] = (scores[mood.score] ?? 0) + 1;
+
+    if (mood.comment) {
+      withComments.push(mood);
+    }
   }
 
   const avg = scoresSum / allMoodEntries.length;
@@ -40,13 +46,15 @@ export function getMoodStats(params: TMoodStatsParams) {
 
   const goodInterest = Math.max(std / 2, 1.1);
 
-  for (const { mood } of traverseMoods(allMoodEntries)) {
+  for (const { mood } of traverseMoods(withComments)) {
     const interest = getMoodInterest({ avgMood: avg, mood: mood.score });
 
-    if (mood.comment && interest >= goodInterest) {
+    if (interest >= goodInterest) {
       interestingEntries.push({ ...mood, interest });
     }
   }
+
+  const lastCommentedEntries = takeRight(withComments, lastEntriesCount);
 
   const interestingEntriesSorted = interestingEntries.sort((entryA, entryB) => {
     const byInterest = entryB.interest - entryA.interest;
@@ -60,7 +68,7 @@ export function getMoodStats(params: TMoodStatsParams) {
     return byScore !== 0 ? byScore : entryB.created - entryA.created;
   });
 
-  return { scores, avg, std, topEntries, goodInterest };
+  return { scores, avg, std, topEntries, goodInterest, lastCommentedEntries };
 }
 
 function* traverseMoods(moods: TMoodEntry[]) {

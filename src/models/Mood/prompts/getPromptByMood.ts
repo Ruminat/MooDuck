@@ -3,86 +3,79 @@ import { sentence } from "../../SentenceBuilder";
 import { getInterjectionsByMood } from "../../SentenceBuilder/interjections";
 import { TUser } from "../../User/definitions";
 import { TMoodScore } from "../definitions";
-import { getMoodStatInfoForPrompt } from "../sagas/getMoodStatInfoForPrompt";
-import { MoodPromptCommon } from "./definitions";
+import { getLastMoodCommentsForPrompt } from "../sagas/getLastMoodCommentsForPrompt";
 
 const MODE = {
-  deadpan: "Сухая ирония, разговорный тон, без пафоса.",
-  buddy: "По-дружески и прямо. Можно слегка подколоть, без грубости.",
-  calm: "Спокойно и бережно, без нотаций и советов.",
-  practical: "Предметно и просто. Без призывов и наставлений.",
+  friendly: "Будь добрым и поддерживающим, как лучший друг.",
+  toxic:
+    "Будь оригинальным, возможно, даже немного токсичным и чернушным (нужна остринка), но при этом забавным (чтобы поднять настроение).",
+  absurd: "Ответь чем-то совершенно абсурдным и неожиданным, возможно даже бессмысленным, но желательно забавным.",
+  philosophical: "Начни рассуждать о смысле жизни, но кратко и с юмором.",
 };
 
-const modesHigh = [MODE.deadpan, MODE.buddy, MODE.practical];
-const modesMid = [MODE.buddy, MODE.practical, MODE.calm];
-const modesLow = [MODE.calm, MODE.buddy];
-
-const BAN_OPENERS = ["Окей", "Ок", "Понял", "Понимаю", "Бывает", "Круто", "Кайф", "Неплохо", "Супер"];
-
-const HUMOR_TRICKS = [
-  "Короткое наблюдение из жизни по теме пользователя (без морали).",
-  "Лёгкая самоирония «так бывает у всех» — одним предложением.",
-  "Гиперконкретика: один приземлённый пример из быта вместо общих слов.",
-  "Мягкий контраст: «и смешно, и утомляет» — одной фразой.",
-];
+const modes = Object.values(MODE);
 
 type TProps = { user: TUser; score: TMoodScore; comment?: string };
 
 export function getPromptByMood(props: TProps) {
+  const seed = String(Math.random()).substring(2);
+
   const score = `${props.score}/10`;
 
   const inspirationWords = sentence`${getInterjectionsByMood(props.score)} ${getInterjectionsByMood(props.score)}`;
 
-  const mode = getMode(props);
-  const wordsLimit = getWordsLimit(props);
+  return `Представь, что тебя используют в чат-боте для записи настроения пользователя.
+Пришло сообщение о том, что у пользователя настроение ${score}.
 
-  const stats = getMoodStatInfoForPrompt({ user: props.user }) ?? "";
+${getComment(props)}
 
-  const prompt = `${MoodPromptCommon.promptRole}
-У пользователя настроение ${score}.
-${getCommentHint(props)}
+Напиши ответ пользователю — реакцию на его настроение.
+Не предлагай кофе, пряники или печеньки — это банально и скучно.
+НИЧЕГО, КРОМЕ ОТВЕТА ПОЛЬЗОВАТЕЛЮ, ПИСАТЬ НЕ НАДО
 
-Напиши ответ простым разговорным русским, с лёгким приземлённым юмором.
-Без вопросов и без призывов к действию. Не используй знак вопроса.
-Без эмодзи, без восклицательных знаков, без метафор и поэзии.
-Не начинай словами: ${BAN_OPENERS.join(", ")}.
-${MoodPromptCommon.banPhrases}
+${getMode(props)}
 
-Стиль: ${mode}
+Нужен содержательный и краткий ответ — не больше ${getWordsLimit(props)} слов.
+Каждый раз ответ должен быть уникальным и интересным.
+Вот тебе seed для текущего ответа: ${seed} (не пиши ничего про seed пользователю).
+Вот тебе слова для вдохновения: ${inspirationWords} (можно их не использовать).
 
-Как писать:
-- 2–4 коротких предложения.
-- Возьми одну тему/слово из комментария (если есть) и сделай по ней лаконичное наблюдение.
-- Используй 1–2 приёма юмора естественно:
-  - ${randomFrom(HUMOR_TRICKS)}
-  - ${randomFrom(HUMOR_TRICKS)}
-- Будь конкретным; никакой мотивационной пены.
-- Заканчивай уверенной точкой, без вопроса и без призывов.
+${getLastMoodCommentsForPrompt({ user: props.user }) ?? ""}
 
-${MoodPromptCommon.wordsLimit(wordsLimit)}
-Ничего, кроме ответа пользователю, писать не надо.
-
-Слова для вдохновения: ${inspirationWords} (можешь не использовать).
-
-${stats}`;
-
-  return prompt;
+ЕЩЁ РАЗ, НИЧЕГО, КРОМЕ ОТВЕТА ПОЛЬЗОВАТЕЛЮ, ПИСАТЬ НЕ НАДО`;
 }
 
-function getCommentHint(props: TProps) {
+function getComment(props: TProps) {
   return props.comment
-    ? `Пользователь написал: "${props.comment}". Вытащи один конкретный момент и коротко обыграй его без пересказа.`
+    ? `Пользователь написал: "${props.comment}". Обыграй это в ответе — возможно, это ключ к его настроению!`
     : "";
 }
 
 function getMode(props: TProps) {
-  if (props.score >= 8) return randomFrom(modesHigh);
-  if (props.score >= 4) return randomFrom(modesMid);
-  return randomFrom(modesLow);
+  if (props.score >= 4) {
+    return randomFrom(modes);
+  } else if (props.score >= 2) {
+    return randomFrom([MODE.friendly, MODE.philosophical]);
+  } else {
+    return MODE.friendly;
+  }
 }
 
 function getWordsLimit(props: TProps) {
-  if (props.score >= 8) return getRandomInt(40, 70);
-  if (props.score >= 4) return getRandomInt(38, 65);
-  return getRandomInt(34, 60);
+  switch (props.score) {
+    case 10:
+    case 1:
+      return getRandomInt(80, 120);
+    case 9:
+    case 2:
+      return getRandomInt(70, 110);
+    case 8:
+    case 3:
+      return getRandomInt(60, 100);
+    case 7:
+    case 4:
+      return getRandomInt(30, 70);
+    default:
+      return getRandomInt(20, 60);
+  }
 }

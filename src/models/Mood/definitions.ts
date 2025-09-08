@@ -28,6 +28,7 @@ export type TMoodInterest = number;
 export type TMoodStatsParams = {
   user: TUser;
   topEntries?: number;
+  lastCommentedEntries?: number;
 };
 
 export type TMoodStats = ReturnType<typeof getMoodStats>;
