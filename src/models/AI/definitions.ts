@@ -4,3 +4,5 @@ export const TokenAI = {
 } as const;
 
 export type TModel = keyof typeof TokenAI;
+
+export type TPrompt = string /* | [{ type: "system"; content: string } | { type: "user"; content: string }] */;

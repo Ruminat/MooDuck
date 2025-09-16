@@ -1,7 +1,5 @@
 import { getRandomInt, randomFrom } from "@shreklabs/core";
 import { pickRandomPromptMode, PROMPT_MODE } from "../../Prompt/mode";
-import { sentence } from "../../SentenceBuilder";
-import { getInterjectionsByMood } from "../../SentenceBuilder/interjections";
 import { TUser } from "../../User/definitions";
 import { TMoodScore } from "../definitions";
 import { getLastMoodCommentsForPrompt } from "../sagas/getLastMoodCommentsForPrompt";
@@ -13,7 +11,8 @@ export function getPromptByMood(props: TProps) {
 
   const score = `${props.score}/10`;
 
-  const inspirationWords = sentence`${getInterjectionsByMood(props.score)} ${getInterjectionsByMood(props.score)}`;
+  // const inspirationWords = sentence`${getInterjectionsByMood(props.score)} ${getInterjectionsByMood(props.score)}`;
+  // Вот тебе слова для вдохновения: ${inspirationWords} (можно их не использовать).
 
   return `Представь, что тебя используют в чат-боте для записи настроения пользователя.
 Пришло сообщение о том, что у пользователя настроение ${score}.
@@ -29,7 +28,6 @@ ${getMode(props)}
 Нужен содержательный и краткий ответ — не больше ${getWordsLimit(props)} слов.
 Каждый раз ответ должен быть уникальным и интересным.
 Вот тебе seed для текущего ответа: ${seed} (не пиши ничего про seed пользователю).
-Вот тебе слова для вдохновения: ${inspirationWords} (можно их не использовать).
 
 ${getLastMoodCommentsForPrompt({ user: props.user }) ?? ""}
 
