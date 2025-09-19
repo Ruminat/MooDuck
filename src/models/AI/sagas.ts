@@ -1,5 +1,6 @@
 import { notEmpty } from "@shreklabs/core";
 import axios from "axios";
+import GigaChat from "gigachat";
 import https from "https";
 import { TModel, TokenAI } from "./definitions";
 import { addAIReplyEntry } from "./storage";
@@ -7,6 +8,8 @@ import { addAIReplyEntry } from "./storage";
 const httpsAgent = new https.Agent({
   /* rejectUnauthorized: false */
 });
+
+const httpsAgentUnauthorized = new https.Agent({ rejectUnauthorized: false });
 
 // const deepseek = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: TokenAI.deepseek });
 
@@ -95,6 +98,17 @@ export async function getAIReply({ model, prompt, score }: { model: TModel; prom
       console.error("Ya GPT error", error);
       throw error;
     }
+  } else if (model === "GigaChat") {
+    const client = new GigaChat({
+      timeout: 600,
+      model: "GigaChat",
+      credentials: token,
+      httpsAgent: httpsAgentUnauthorized,
+    });
+
+    const response = await client.chat(prompt);
+
+    return response.choices[0]?.message.content;
   } else {
     throw new Error(`Unknown model ${model}`);
   }

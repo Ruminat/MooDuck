@@ -62,7 +62,7 @@ export const telegramMoodEntry = {
 
     let result = defaultResult;
     try {
-      const reply = await getAIReply({ model: "yaGPT", score, prompt: getPromptByMood({ user, score, comment }) });
+      const reply = await getAIReply({ model: "GigaChat", score, prompt: getPromptByMood({ user, score, comment }) });
 
       if (!reply) throw new Error("Didn't get any reply");
 
