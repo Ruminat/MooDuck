@@ -31,7 +31,7 @@ ${MoodPromptCommon.wordsLimit(getRandomInt(300, 500))}
 ${stats}`;
 
     try {
-      const reply = await getAIReply({ model: "yaGPT", prompt });
+      const reply = await getAIReply({ prompt });
 
       if (!reply) throw new Error("Didn't get any reply");
 

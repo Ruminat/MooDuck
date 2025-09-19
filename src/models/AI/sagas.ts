@@ -13,7 +13,15 @@ const httpsAgentUnauthorized = new https.Agent({ rejectUnauthorized: false });
 
 // const deepseek = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: TokenAI.deepseek });
 
-export async function getAIReply({ model, prompt, score }: { model: TModel; prompt: string; score?: number }) {
+export async function getAIReply({
+  model = "GigaChat",
+  prompt,
+  score,
+}: {
+  prompt: string;
+  model?: TModel;
+  score?: number;
+}) {
   if (process.env.RETURN_PROMPT_INSTEAD_OF_ACTUALLY_REQUESTING === "true") {
     return prompt;
   }
@@ -100,8 +108,10 @@ export async function getAIReply({ model, prompt, score }: { model: TModel; prom
     }
   } else if (model === "GigaChat") {
     const client = new GigaChat({
+      // https://developers.sber.ru/docs/ru/gigachat/models#modeli-dlya-generatsii
+      model: "GigaChat-2-Max",
+
       timeout: 600,
-      model: "GigaChat",
       credentials: token,
       httpsAgent: httpsAgentUnauthorized,
     });
