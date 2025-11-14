@@ -27,7 +27,6 @@ ${getMode(props)}
 
 Нужен содержательный и краткий ответ — не больше ${getWordsLimit(props)} слов.
 Каждый раз ответ должен быть уникальным и интересным.
-Вот тебе seed для текущего ответа: ${seed} (не пиши ничего про seed пользователю).
 
 ${getLastMoodCommentsForPrompt({ user: props.user }) ?? ""}
 

@@ -62,7 +62,14 @@ export function getMoodStats(params: TMoodStatsParams) {
     return byInterest !== 0 ? byInterest : entryB.created - entryA.created;
   });
 
-  const topEntries = take(interestingEntriesSorted, topEntriesCount).sort((entryA, entryB) => {
+  const goodEntries = interestingEntriesSorted.filter((entry) => entry.score > avg);
+  const badEntries = interestingEntriesSorted.filter((entry) => entry.score < avg);
+
+  const halfCount = Math.ceil(topEntriesCount / 2);
+  const topEntriesGood = take(goodEntries, halfCount);
+  const topEntriesBad = take(badEntries, halfCount);
+
+  const topEntries = [...topEntriesGood, ...topEntriesBad].sort((entryA, entryB) => {
     const byScore = entryB.score - entryA.score;
 
     return byScore !== 0 ? byScore : entryB.created - entryA.created;
