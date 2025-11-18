@@ -22,13 +22,13 @@ export const telegramStatCommand = {
 
     const prompt = `${MoodPromptCommon.promptRole}
 
-Нужно прокомментировать статистику пользователя.
-${pickRandomPromptMode()}
-Предоставь только ответ пользователю и больше ничего.
-${MoodPromptCommon.banPhrases}
-${MoodPromptCommon.wordsLimit(getRandomInt(300, 500))}
+    Нужно прокомментировать статистику пользователя.
+    ${pickRandomPromptMode()}
+    Предоставь только ответ пользователю и больше ничего.
+    ${MoodPromptCommon.banPhrases}
+    ${MoodPromptCommon.wordsLimit(getRandomInt(300, 500))}
 
-${stats}`;
+    ${stats}`;
 
     try {
       const reply = await getAIReply({ prompt });
